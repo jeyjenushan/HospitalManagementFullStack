@@ -1,0 +1,7 @@
+package org.ai.hospitalmanagementapplicationbackend.Exception;
+
+public class HospitalException extends RuntimeException{
+    public HospitalException(String message){
+        super(message);
+    }
+}

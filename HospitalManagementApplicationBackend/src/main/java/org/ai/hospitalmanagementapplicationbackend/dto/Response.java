@@ -27,6 +27,11 @@ public class Response {
     private StaffDto staffDto;
     private UserDto userDto;
     private List<PatientDto>patientDtos;
+    private List<DoctorDto>doctorDtos;
+    private List<MedicalRecordDto>medicalRecordDtos;
+    private List<AppointmentDto>appointmentDtos;
+    private List<DepartmentDto>departmentDtos;
+    private List<StaffDto>staffDtos;
 
 
 }

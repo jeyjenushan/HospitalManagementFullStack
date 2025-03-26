@@ -100,10 +100,17 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version> <!-- Updated version -->
+                <configuration>
+                    <release>17</release> <!-- Match your Java version -->
+                    <compilerArgs>
+                        <arg>--add-modules</arg>
+                        <arg>jdk.jfr</arg>
+                    </compilerArgs>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

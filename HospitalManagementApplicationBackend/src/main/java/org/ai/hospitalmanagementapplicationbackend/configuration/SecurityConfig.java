@@ -1,10 +1,13 @@
 package org.ai.hospitalmanagementapplicationbackend.configuration;
 import jakarta.servlet.http.HttpServletRequest;
+import org.ai.hospitalmanagementapplicationbackend.enumpack.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,26 +23,64 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     @Autowired
     private JwtFilter jwtFilter;
 
- @Bean
- SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize -> authorize
+                        // Public endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register-patient").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/doctors").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/doctors/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/departments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/departments/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/admin/login").permitAll()
+                        .requestMatchers(
+                                "/api/login",
+                                "/api/auth/patient",
+                                "/api/forgotpassword/send-otp",
+                                "/api/forgotpassword/verify-otp",
+                                "/api/forgotpassword/reset-password"
 
-     return http
-             .csrf(AbstractHttpConfigurer::disable)
-             .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-             .authorizeHttpRequests(authorizeRequests->authorizeRequests.anyRequest().permitAll())
-             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-             .cors(cors->cors.configurationSource(corsConfigurationSource()))
-             .build();
+                        ).permitAll()
+                        // Patient-specific endpoints
+                        .requestMatchers(HttpMethod.PUT, "/api/patients/{id}").hasAnyRole("PATIENT", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/patients/{id}").hasAnyRole("PATIENT", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/patients/{id}/medical-records").hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                        .requestMatchers(HttpMethod.GET, "/api/patients/{id}/appointments").hasAnyRole("PATIENT", "ADMIN")
 
+                        // Appointment endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/appointments").hasRole("PATIENT")
+                        .requestMatchers(HttpMethod.PUT, "/api/appointments/{id}/reschedule").hasAnyRole("PATIENT", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/appointments/{id}").hasAnyRole("PATIENT", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/doctors/{id}/appointments").hasAnyRole("DOCTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/appointments?status={status}").hasRole("ADMIN")
 
+                        // Doctor endpoints
+                        .requestMatchers(HttpMethod.PUT, "/api/doctors/{id}").hasAnyRole("DOCTOR", "ADMIN")
 
+                        // Admin-only endpoints
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/patients/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/patients").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/admin/medical-records").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/admin/medical-records/{id}").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers("/api/staff/**").hasRole("ADMIN")
 
- }
+                        // All other requests need authentication
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .build();
+    }
 
     private CorsConfigurationSource corsConfigurationSource() {
      return new CorsConfigurationSource() {

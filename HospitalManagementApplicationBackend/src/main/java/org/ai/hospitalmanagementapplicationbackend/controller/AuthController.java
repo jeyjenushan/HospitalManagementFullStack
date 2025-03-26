@@ -23,7 +23,7 @@ public class AuthController {
         Response response=authService.LoginUser(loginRequest);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
-    @PostMapping("/register")
+    @PostMapping("/auth/patient")
     public ResponseEntity<Response> patientRegister(@RequestBody PatientEntity patient) {
         Response response = authService.RegisterPatient(patient);
         return ResponseEntity.status(response.getStatusCode()).body(response);

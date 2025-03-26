@@ -1,7 +1,5 @@
 package org.ai.hospitalmanagementapplicationbackend.controller;
 
-
-import lombok.AllArgsConstructor;
 import org.ai.hospitalmanagementapplicationbackend.dto.Response;
 import org.ai.hospitalmanagementapplicationbackend.entity.AppointmentEntity;
 import org.ai.hospitalmanagementapplicationbackend.enumpack.AppointmentStatus;

@@ -1,6 +1,5 @@
 package org.ai.hospitalmanagementapplicationbackend.configuration;
 import jakarta.servlet.http.HttpServletRequest;
-import org.ai.hospitalmanagementapplicationbackend.enumpack.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

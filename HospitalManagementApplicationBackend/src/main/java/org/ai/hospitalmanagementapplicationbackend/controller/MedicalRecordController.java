@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import org.ai.hospitalmanagementapplicationbackend.dto.Response;
 import org.ai.hospitalmanagementapplicationbackend.entity.MedicalRecordEntity;
 import org.ai.hospitalmanagementapplicationbackend.service.MedicalRecordService;
-import org.ai.hospitalmanagementapplicationbackend.service.PatientService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

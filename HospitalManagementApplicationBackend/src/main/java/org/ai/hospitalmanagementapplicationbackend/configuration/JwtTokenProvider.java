@@ -7,13 +7,16 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.ai.hospitalmanagementapplicationbackend.entity.UserEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtTokenProvider {
@@ -33,12 +36,18 @@ public class JwtTokenProvider {
     }
 
     public String generateToken(UserEntity userEntity){
+        List<String> authorities = userEntity.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
         return Jwts
                 .builder()
                 .subject(userEntity.getEmail())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis()+1000*60*60*24))
                 .signWith(getSignKey())
+                .claim("roles", authorities)
+                .claim("userId", userEntity.getId())
                 .compact();
     }
     public boolean isValidate(String token, UserDetails userDetails){
@@ -71,5 +80,9 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+    public Long extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("userId", Long.class);
     }
 }

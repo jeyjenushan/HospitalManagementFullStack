@@ -143,4 +143,57 @@ public  class  DtoConverter {
     public static List<AdminDto> convertAdminEntityListToAdminDtoList(List<AdminEntity> adminDtoList) {
         return adminDtoList.stream().map(DtoConverter::convertAdminEntityToAdminDto).collect(Collectors.toList());
     }
+    public static  MedicalRecordDto convertMedicalEntityToMedicalDto(MedicalRecordEntity medicalRecordEntity) {
+        if (medicalRecordEntity == null) {
+            return null;
+        }
+        MedicalRecordDto medicalRecordDto = new MedicalRecordDto();
+        // Mapping fields
+        medicalRecordDto.setId(medicalRecordEntity.getId());
+        medicalRecordDto.setDiagnosis(medicalRecordEntity.getDiagnosis());
+        medicalRecordDto.setPrescription(medicalRecordEntity.getPrescription());
+        medicalRecordDto.setNotes(medicalRecordEntity.getNotes());
+        medicalRecordDto.setCreatedAt(medicalRecordEntity.getCreatedAt());
+
+        // Assuming that the PatientEntity has a 'name' field or you can get it via a method
+        if (medicalRecordEntity.getPatient() != null) {
+            medicalRecordDto.setPatientId(medicalRecordEntity.getPatient().getId());
+            medicalRecordDto.setPatientName(medicalRecordEntity.getPatient().getUser().getName());  // Assuming the PatientEntity has a 'getName' method
+        }
+
+        return medicalRecordDto;
+    }
+
+    public static List<MedicalRecordDto> convertMedicalRecordEntityListToMedicalDtoList(List<MedicalRecordEntity> medicalRecordEntityList) {
+        return medicalRecordEntityList.stream().map(DtoConverter::convertMedicalEntityToMedicalDto).collect(Collectors.toList());
+    }
+
+    public static AppointmentDto convertAppointmentEntityToAppointmentDto(AppointmentEntity appointmentEntity) {
+        if (appointmentEntity == null) {
+            return null;
+        }
+
+        AppointmentDto appointmentDto = new AppointmentDto();
+        // Mapping fields
+        appointmentDto.setId(appointmentEntity.getId());
+        appointmentDto.setAppointmentTime(appointmentEntity.getAppointmentTime());
+        appointmentDto.setStatus(appointmentEntity.getAppointmentStatus().toString());
+
+        // Mapping Patient details
+        if (appointmentEntity.getPatient() != null) {
+            appointmentDto.setPatientId(appointmentEntity.getPatient().getId());
+            appointmentDto.setPatientName(appointmentEntity.getPatient().getUser().getName());  // Assuming PatientEntity has a User with a name
+        }
+
+        // Mapping Doctor details
+        if (appointmentEntity.getDoctor() != null) {
+            appointmentDto.setDoctorId(appointmentEntity.getDoctor().getId());
+            appointmentDto.setDoctorName(appointmentEntity.getDoctor().getUser().getName());  // Assuming DoctorEntity has a User with a name
+        }
+
+        return appointmentDto;
+    }
+    public static List<AppointmentDto> convertAppointmentEntityListToAppointmentDtoList(List<AppointmentEntity> appointmentEntityList) {
+        return appointmentEntityList.stream().map(DtoConverter::convertAppointmentEntityToAppointmentDto).collect(Collectors.toList());
+    }
 }

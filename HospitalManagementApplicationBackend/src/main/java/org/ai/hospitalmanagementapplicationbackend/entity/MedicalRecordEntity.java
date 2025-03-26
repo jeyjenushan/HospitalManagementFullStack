@@ -3,6 +3,7 @@ package org.ai.hospitalmanagementapplicationbackend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "medical_records")
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class MedicalRecordEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

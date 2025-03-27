@@ -1,21 +1,28 @@
 package org.ai.hospitalmanagementapplicationbackend.service;
 
+import org.ai.hospitalmanagementapplicationbackend.dto.DepartmentDto;
+import org.ai.hospitalmanagementapplicationbackend.dto.DoctorDto;
 import org.ai.hospitalmanagementapplicationbackend.dto.Response;
 import org.ai.hospitalmanagementapplicationbackend.entity.DepartmentEntity;
 import org.ai.hospitalmanagementapplicationbackend.entity.DoctorEntity;
 import org.ai.hospitalmanagementapplicationbackend.mapper.DtoConverter;
 import org.ai.hospitalmanagementapplicationbackend.repository.DepartmentRepository;
+import org.ai.hospitalmanagementapplicationbackend.repository.DoctorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentServiceImplementation implements DepartmentService{
 
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
 
 
     @Override
@@ -27,12 +34,12 @@ public class DepartmentServiceImplementation implements DepartmentService{
                 response.setStatusCode(400);
                 return response;
             }
-            departmentRepository.save(department);
+            DepartmentEntity savedDepartment=departmentRepository.save(department);
             response.setMessage("Department added successfully");
             response.setStatusCode(201);
-            response.setDepartmentDto(DtoConverter.convertDepartmentEntityToDepartmentDto(department));
+            response.setDepartmentDto(DtoConverter.convertDepartmentEntityToDepartmentDto(savedDepartment));
         } catch (Exception e) {
-            response.setMessage("We encountered a problem while adding the department. Please try again later.");
+            response.setMessage(e.getMessage());
             response.setStatusCode(500);
         }
         return response;
@@ -144,24 +151,36 @@ public class DepartmentServiceImplementation implements DepartmentService{
     public Response getAllDoctorsByDepartment(Long departmentId) {
         Response response = new Response();
         try {
+            // First check if department exists
             Optional<DepartmentEntity> department = departmentRepository.findById(departmentId);
-            if (department.isPresent()) {
-                List<DoctorEntity> doctors = department.get().getDoctors();
-                if (doctors.isEmpty()) {
-                    response.setMessage("No doctors found in this department");
-                } else {
-                    response.setMessage("Doctors retrieved successfully");
-                }
-                response.setStatusCode(200);
-                response.setDepartmentDto(DtoConverter.convertDepartmentEntityToDepartmentDto(department.get()));
-            } else {
+
+            if (!department.isPresent()) {
                 response.setMessage("We couldn't find the department you're looking for");
                 response.setStatusCode(404);
+                return response;
+            }
+
+            // Then get doctors by department
+            List<DoctorEntity> doctors = doctorRepository.findByDepartmentId(departmentId);
+
+            if (doctors.isEmpty()) {
+                response.setMessage("No doctors found in this department");
+                response.setStatusCode(200);
+            } else {
+                response.setMessage("Doctors retrieved successfully");
+                response.setStatusCode(200);
+
+                // Convert both department and doctors to DTOs
+                DepartmentDto departmentDto = DtoConverter.convertDepartmentEntityToDepartmentDto(department.get());
+                List<DoctorDto> doctorDtos = DtoConverter.convertDoctorEntityListToDoctorDtoList(department.get().getDoctors());
+
+                departmentDto.setDoctors(doctorDtos);
+                response.setDepartmentDto(departmentDto);
             }
         } catch (Exception e) {
             response.setMessage("We're having trouble retrieving the doctor list. Please try again.");
             response.setStatusCode(500);
-            // Log the actual error for debugging: log.error("Error fetching doctors by department", e);
+
         }
         return response;
     }

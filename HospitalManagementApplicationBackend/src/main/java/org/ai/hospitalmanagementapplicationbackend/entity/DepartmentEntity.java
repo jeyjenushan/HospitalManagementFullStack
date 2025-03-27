@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,11 +21,11 @@ public class DepartmentEntity {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "department",cascade = CascadeType.PERSIST,orphanRemoval = true)
-    private List<DoctorEntity> doctors;
+    @OneToMany(mappedBy = "department",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<DoctorEntity> doctors=new ArrayList<>();
 
-    @OneToMany(mappedBy = "department",cascade = CascadeType.PERSIST,orphanRemoval = true)
-    private List<StaffEntity> staffEntities;
+    @OneToMany(mappedBy = "department",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<StaffEntity> staffEntities=new ArrayList<>();
 
 
 }

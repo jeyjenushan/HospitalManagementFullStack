@@ -57,8 +57,9 @@ public class AppointmentServiceImplementation implements AppointmentService{
 
         } catch (Exception e) {
             response.setStatusCode(500);
-            response.setMessage("We couldn't process your appointment booking. Please try again later.");
-            // Log the actual error: log.error("Booking failed", e);
+            response.setMessage(e.getMessage());
+            //response.setMessage("We couldn't process your appointment booking. Please try again later.");
+
         }
         return response;
     }

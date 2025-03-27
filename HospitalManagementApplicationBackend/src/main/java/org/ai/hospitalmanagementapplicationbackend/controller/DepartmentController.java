@@ -17,7 +17,6 @@ public class DepartmentController {
     private final DepartmentService departmentService;
 
     //admin end points
-
     @PostMapping("/admin/departments")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Response> addNewDepartment( @RequestBody DepartmentEntity department) {

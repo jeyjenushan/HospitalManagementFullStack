@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -30,11 +31,11 @@ public class PatientEntity {
       @Column(updatable = false)
       private LocalDateTime createdAt;
 
-      @OneToMany(mappedBy = "patient")
-      private List<AppointmentEntity> appointments;
+      @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+      private List<AppointmentEntity> appointments=new ArrayList<>();
 
-      @OneToMany(mappedBy = "patient")
-      private List<MedicalRecordEntity> medicalRecords;
+      @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+      private List<MedicalRecordEntity> medicalRecords=new ArrayList<>();
 
       @OneToOne
       @JoinColumn(name = "user_id",referencedColumnName = "id")
